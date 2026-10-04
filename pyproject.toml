@@ -7,7 +7,12 @@ authors = [
     { name = "SaieshSharma", email = "saiesh.techscribe@gmail.com" }
 ]
 requires-python = ">=3.12,<3.13"
-dependencies = []
+dependencies = [
+    "numpy>=2.5.3",
+    "pydantic>=2.13.5",
+    "pydantic-settings>=2.15.0",
+    "sentence-transformers>=6.1.0",
+]
 
 [project.scripts]
 medquery = "medquery:main"
