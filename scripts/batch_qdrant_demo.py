@@ -12,48 +12,43 @@ def main() -> None:
         require_answers=True,
     )
 
-    document = documents[0]
+    test_documents = documents[:3]
 
     embedding_model = EmbeddingModel(settings.embedding_model)
 
-    document_vector = embedding_model.embed(document.text)
+    texts = [document.text for document in test_documents]
+    vectors = embedding_model.embed_batch(texts)
 
     vector_store = QdrantVectorStore(
         url=settings.qdrant_url,
         collection_name=settings.qdrant_collection,
-        vector_size=len(document_vector),
+        vector_size=len(vectors[0]),
     )
 
     vector_store.ensure_collection()
 
-    vector_store.upsert(
-        point_id=document.document_id,
-        vector=document_vector,
-        payload={
+    points = []
+
+    for document, vector in zip(test_documents, vectors):
+        payload = {
             "text": document.text,
             "source": document.source,
             "document_id": document.document_id,
             **document.metadata,
-        },
-    )
+        }
 
-    query = "What is this medical topic about?"
-    query_vector = embedding_model.embed(query)
+        points.append(
+            (
+                document.document_id,
+                vector,
+                payload,
+            )
+        )
 
-    results = vector_store.search(
-        query_vector=query_vector,
-        limit=3,
-    )
+    vector_store.upsert_batch(points)
 
-    print(f"\nQuery: {query}")
-    print(f"Results found: {len(results)}")
-
-    for result in results:
-        print("\n--- Result ---")
-        print(f"Score: {result.score:.4f}")
-        print(f"Document ID: {result.payload['document_id']}")
-        print(f"Source: {result.payload['source']}")
-        print(f"Text: {result.payload['text'][:500]}")
+    print(f"Successfully upserted {len(points)} documents.")
+    print(f"Vector dimensions: {len(vectors[0])}")
 
 
 if __name__ == "__main__":

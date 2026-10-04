@@ -2,7 +2,7 @@ from typing import Any
 from uuid import NAMESPACE_URL, uuid5
 
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, PointStruct, VectorParams
+from qdrant_client.models import Distance, PointStruct, ScoredPoint, VectorParams
 
 
 class QdrantVectorStore:
@@ -45,4 +45,37 @@ class QdrantVectorStore:
                     payload=payload,
                 )
             ],
+        )
+
+    def search(
+    self,
+    query_vector: list[float],
+    limit: int = 5,   # top k retrieval
+) -> list[ScoredPoint]:
+        return self.client.query_points(
+            collection_name=self.collection_name,
+            query=query_vector,
+            limit=limit,
+        ).points
+
+    def upsert_batch(
+    self,
+    points: list[tuple[str, list[float], dict[str, Any]]],
+) -> None:
+        qdrant_points = []
+
+        for point_id, vector, payload in points:
+            qdrant_id = str(uuid5(NAMESPACE_URL, point_id))
+
+            qdrant_points.append(
+                PointStruct(
+                    id=qdrant_id,
+                    vector=vector,
+                    payload=payload,
+                )
+            )
+
+        self.client.upsert(
+            collection_name=self.collection_name,
+            points=qdrant_points,
         )
