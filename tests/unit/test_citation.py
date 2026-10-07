@@ -7,7 +7,9 @@ def make_source(citation_id: int) -> Source:
         citation_id=citation_id,
         document_id=f"doc-{citation_id}",
         source="medquad",
-        metadata={},
+        source_name=None,
+        focus=None,
+        url=None,
     )
 
 def test_accepts_valid_citations() -> None:

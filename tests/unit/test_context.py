@@ -49,3 +49,25 @@ def test_empty_results_produce_empty_context() -> None:
 
     assert context.text == ""
     assert context.sources == []
+
+def test_maps_metadata_to_source_fields() -> None:
+    result = RetrievalResult(
+        chunk_id="doc-1-0",
+        document_id="doc-1",
+        text="Information about diabetes.",
+        source="medquad",
+        dense_score=0.8,
+        metadata={
+            "source_name": "NIHSeniorHealth",
+            "focus": "Diabetes",
+            "url": "https://example.com/diabetes",
+        },
+    )
+
+    context = ContextBuilder().build([result])
+
+    source = context.sources[0]
+
+    assert source.source_name == "NIHSeniorHealth"
+    assert source.focus == "Diabetes"
+    assert source.url == "https://example.com/diabetes"

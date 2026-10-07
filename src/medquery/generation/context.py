@@ -23,12 +23,17 @@ class ContextBuilder:
                 f"[{citation_id}]\n{result.text}"
             )
 
+            metadata = result.metadata
+
+
             sources.append(
                 Source(
                     citation_id=citation_id,
                     document_id=result.document_id,
                     source=result.source,
-                    metadata=result.metadata.copy(),
+                    source_name=metadata.get("source_name"),
+                    focus=metadata.get("focus"),
+                    url=metadata.get("url"),
                 )
             )
 
