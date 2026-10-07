@@ -1,6 +1,7 @@
 from medquery.config.settings import settings
 from medquery.embeddings.model import EmbeddingModel
 from medquery.generation.groq_generator import GroqGenerator
+from medquery.guardrails.relevance import RelevanceGuardrail
 from medquery.pipeline.rag_pipeline import RAGPipeline
 from medquery.retrieval.qdrant_store import QdrantVectorStore
 from medquery.retrieval.reranker import Reranker
@@ -33,13 +34,20 @@ def main() -> None:
         model_name=settings.groq_model,
     )
 
+    relevance_guardrail = RelevanceGuardrail(
+    min_top_score=0.30,
+    min_top3_average=0.25,
+    )
+
     pipeline = RAGPipeline(
         retriever=retriever,
         reranker=reranker,
         generator=generator,
+        relevance_guardrail=relevance_guardrail,
+
     )
 
-    query = "What are the symptoms of diabetes?"
+    query = "What is the capital of France?"
 
     print(f"\nQuestion: {query}\n")
 

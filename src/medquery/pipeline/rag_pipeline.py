@@ -1,4 +1,5 @@
 from medquery.generation.groq_generator import GroqGenerator
+from medquery.guardrails.relevance import RelevanceGuardrail
 from medquery.retrieval.reranker import Reranker
 from medquery.retrieval.retriever import Retriever
 from medquery.schemas.response import RAGResponse
@@ -10,10 +11,12 @@ class RAGPipeline:
         retriever: Retriever,
         reranker: Reranker,
         generator: GroqGenerator,
+        relevance_guardrail: RelevanceGuardrail,
     ) -> None:
         self.retriever = retriever
         self.reranker = reranker
         self.generator = generator
+        self.relevance_guardrail = relevance_guardrail
 
     def run(
         self,
@@ -25,6 +28,19 @@ class RAGPipeline:
             query=query,
             top_k=retrieval_k,
         )
+
+        guardrail_result = self.relevance_guardrail.check(
+            retrieved_results
+        )
+
+        if not guardrail_result.allowed:
+            return RAGResponse(
+                answer=(
+                    "I don't have enough relevant medical information "
+                    "in my knowledge base to answer this question reliably."
+                ),
+                sources=[],
+            )
 
         reranked_results = self.reranker.rerank(
             query=query,
