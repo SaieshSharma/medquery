@@ -34,7 +34,7 @@ class Retriever:
                     chunk_id=payload["chunk_id"],
                     document_id=payload["document_id"],
                     text=payload["text"],
-                    score=float(result.score),
+                    dense_score=float(result.score),
                     source=payload["source"],
                     metadata={
                         key: value

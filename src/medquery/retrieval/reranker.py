@@ -13,10 +13,7 @@ class Reranker:
         results: list[RetrievalResult],
         top_k: int = 5,
     ) -> list[RetrievalResult]:
-        pairs = [
-            [query, result.text]
-            for result in results
-        ]
+        pairs = [[query, result.text] for result in results]
 
         scores = self.model.predict(pairs)
 
@@ -26,7 +23,10 @@ class Reranker:
             reverse=True,
         )
 
-        return [
-            result
-            for result, _ in ranked_results[:top_k]
-        ]
+        reranked_results = []
+
+        for result, score in ranked_results[:top_k]:
+            result.rerank_score = float(score)
+            reranked_results.append(result)
+
+        return reranked_results
