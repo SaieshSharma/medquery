@@ -1,3 +1,5 @@
+from medquery.generation.citation import CitationValidator
+from medquery.generation.context import ContextBuilder
 from medquery.generation.groq_generator import GroqGenerator
 from medquery.guardrails.relevance import RelevanceGuardrail
 from medquery.retrieval.reranker import Reranker
@@ -17,6 +19,8 @@ class RAGPipeline:
         self.reranker = reranker
         self.generator = generator
         self.relevance_guardrail = relevance_guardrail
+        self.context_builder = ContextBuilder()
+        self.citation_validator = CitationValidator()
 
     def run(
         self,
@@ -48,12 +52,28 @@ class RAGPipeline:
             top_k=final_k,
         )
 
+        context = self.context_builder.build(reranked_results)
+
         answer = self.generator.generate(
             query=query,
-            results=reranked_results,
+            context=context,
         )
+
+        citation_result = self.citation_validator.validate(
+            answer=answer,
+            sources=context.sources,
+        )
+
+        if not citation_result.valid:
+            return RAGResponse(
+                answer=(
+                    "I couldn't generate a reliably cited answer "
+                    "from the available medical sources."
+                ),
+                sources=[],
+            )
 
         return RAGResponse(
             answer=answer,
-            sources=reranked_results,
+            sources=context.sources,
         )

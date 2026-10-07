@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-from medquery.schemas.retrieval import RetrievalResult
+from medquery.schemas.source import Source
 
 
 @dataclass
 class RAGResponse:
     answer: str
-    sources: list[RetrievalResult]
+    sources: list[Source]

@@ -1,6 +1,6 @@
 from groq import Groq
 
-from medquery.schemas.retrieval import RetrievalResult
+from medquery.generation.context import Context
 
 
 class GroqGenerator:
@@ -11,17 +11,8 @@ class GroqGenerator:
     def generate(
         self,
         query: str,
-        results: list[RetrievalResult],
+        context: Context,
     ) -> str:
-        context_parts = []
-
-        for index, result in enumerate(results, start=1):
-            context_parts.append(
-                f"[Source {index}]\n{result.text}"
-            )
-
-        context = "\n\n".join(context_parts)
-
         system_prompt = """
 You are MedQuery, a medical question-answering assistant.
 
@@ -32,27 +23,28 @@ Rules:
 2. If the context is insufficient to answer the question, clearly say so.
 3. Give a concise and understandable answer.
 4. Do not present unsupported medical advice as fact.
+5. When making a factual claim, place the citation immediately after
+   the sentence or claim it supports, such as:
+   "Frequent urination is a common symptom. [1]"
+6. Do not put all citations together at the end of the answer.
+7. Only use citation numbers that actually exist in the provided context.
+8. If multiple sources support the same claim, you may cite them together,
+   such as [1][2].
 """.strip()
 
         user_prompt = f"""
-User question:
-{query}
+    User question:
+    {query}
 
-Retrieved context:
-{context}
-""".strip()
+    Retrieved context:
+    {context.text}
+    """.strip()
 
         response = self.client.chat.completions.create(
             model=self.model_name,
             messages=[
-                {
-                    "role": "system",
-                    "content": system_prompt,
-                },
-                {
-                    "role": "user",
-                    "content": user_prompt,
-                },
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
             ],
             temperature=0.2,
             max_completion_tokens=512,

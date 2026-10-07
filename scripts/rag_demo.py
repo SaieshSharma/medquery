@@ -47,7 +47,7 @@ def main() -> None:
 
     )
 
-    query = "What is the capital of France?"
+    query = "What are the symptoms of diabetes?"
 
     print(f"\nQuestion: {query}\n")
 
@@ -62,14 +62,14 @@ def main() -> None:
 
     print("\nSources:")
 
-    for index, result in enumerate(response.sources, start=1):
-        print(f"\n[{index}]")
-        print(f"Source: {result.source}")
-        print(f"Document: {result.document_id}")
+    for source in response.sources:
+        print(f"\n[{source.citation_id}]")
+        print(f"Source: {source.source}")
+        print(f"Document: {source.document_id}")
 
-        source_name = result.metadata.get("source_name")
-        url = result.metadata.get("url")
-        focus = result.metadata.get("focus")
+        source_name = source.metadata.get("source_name")
+        url = source.metadata.get("url")
+        focus = source.metadata.get("focus")
 
         if source_name:
             print(f"Source name: {source_name}")
