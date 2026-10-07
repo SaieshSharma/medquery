@@ -7,3 +7,4 @@ from medquery.schemas.source import Source
 class RAGResponse:
     answer: str
     sources: list[Source]
+    status: str

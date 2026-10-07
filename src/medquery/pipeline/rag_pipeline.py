@@ -44,6 +44,7 @@ class RAGPipeline:
                     "in my knowledge base to answer this question reliably."
                 ),
                 sources=[],
+                status="abstained",
             )
 
         reranked_results = self.reranker.rerank(
@@ -71,9 +72,12 @@ class RAGPipeline:
                     "from the available medical sources."
                 ),
                 sources=[],
+                status="abstained",
             )
-
+        
         return RAGResponse(
             answer=answer,
             sources=context.sources,
+            status="answered",
         )
+
