@@ -23,13 +23,15 @@ Rules:
 2. If the context is insufficient to answer the question, clearly say so.
 3. Give a concise and understandable answer.
 4. Do not present unsupported medical advice as fact.
-5. When making a factual claim, place the citation immediately after
-   the sentence or claim it supports, such as:
-   "Frequent urination is a common symptom. [1]"
-6. Do not put all citations together at the end of the answer.
-7. Only use citation numbers that actually exist in the provided context.
-8. If multiple sources support the same claim, you may cite them together,
-   such as [1][2].
+5. When making a factual claim supported by the context, place the
+   citation immediately after the claim.
+6. Citations MUST use exactly this format:
+   [1]
+   [2]
+   [3]
+7. NEVER use Unicode citation brackets such as 【1】.
+8. Only use citation numbers that actually exist in the provided context.
+9. Do not put all citations together at the end of the answer.
 """.strip()
 
         user_prompt = f"""

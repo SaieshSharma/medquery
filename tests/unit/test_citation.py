@@ -84,3 +84,32 @@ def test_handles_answer_without_citations() -> None:
     assert result.valid is True
     assert result.citation_ids == []
     assert result.invalid_citation_ids == []
+
+
+def test_rejects_unsupported_citation_format() -> None:
+    validator = CitationValidator()
+
+    sources = [make_source(1), make_source(2)]
+
+    result = validator.validate(
+        answer="Diabetes can cause thirst. 【1】",
+        sources=sources,
+    )
+
+    assert result.citation_ids == []
+    assert result.invalid_citation_ids == []
+
+
+def test_extracts_standard_citation_format() -> None:
+    validator = CitationValidator()
+
+    sources = [make_source(1), make_source(2)]
+
+    result = validator.validate(
+        answer="Diabetes can cause thirst. [1]",
+        sources=sources,
+    )
+
+    assert result.valid is True
+    assert result.citation_ids == [1]
+    assert result.invalid_citation_ids == []
